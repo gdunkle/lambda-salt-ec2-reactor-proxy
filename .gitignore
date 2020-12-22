@@ -23,6 +23,6 @@
 # System Files
 **/.DS_Store
 **/.vscode
-
+build/
 deployment/parameters/awsgalen*.json
 
