@@ -25,4 +25,4 @@
 **/.vscode
 build/
 deployment/parameters/awsgalen*.json
-
+.idea
