@@ -1,0 +1,10 @@
+Metadata-Version: 1.0
+Name: lambda-salt-ec2-reactor-proxy
+Version: 1.0
+Summary: This function listens for auto scale events on a configured SNS topic and then forwards the message to a salt master server
+Home-page: UNKNOWN
+Author: Galen Dunkleberger
+Author-email: UNKNOWN
+License: ASL
+Description: UNKNOWN
+Platform: UNKNOWN

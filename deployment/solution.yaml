@@ -1,0 +1,89 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: lambda-salt-ec2-reactor-proxy - Demonstrate lambda listening for sns message
+
+Parameters:
+
+  SaltMasterEndpoint:
+    Description: The url to the Salt ec2 auto scale web hook
+    Type: String
+  SubnetIds:
+    Description: List of vpc subnet ids to deploy the lambda to. The subnet ids should have a route configured to the salt master server
+    Type: CommaDelimitedList
+  SecurityGroupIds:
+    Description: List of security group ids for the vpc the lambda is deploy to.
+    Type: CommaDelimitedList
+  TopicArn:
+    Description: Arn of the SNS topci that autoscal events are sent to
+    Type: String
+Mappings:
+
+  MetricsMap:
+    Send-Data:
+      SendAnonymousData: "Yes" # change to 'No' if needed
+
+  SourceCode:
+    General:
+      S3Bucket: %%BUCKET_NAME%%
+      KeyPrefix: "%%SOLUTION_NAME%%/%%VERSION%%"
+
+Resources:
+
+  ReactorProxyFunctionFunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Path: /
+      ManagedPolicyArns:
+        - 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
+        - 'arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole'
+
+  ReactorProxyFunctionFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Description: This function listens for auto scale events on a configured SNS topic and then forwards the message to a salt master server.
+      Environment:
+        Variables:
+          LOG_LEVEL: 'DEBUG' # change to WARN, ERROR or DEBUG as needed
+          SALT_MASTER_ENDPOINT: !Ref SaltMasterEndpoint
+      Handler: lambda_sns_listener.index.lambda_handler
+      Role: !GetAtt ReactorProxyFunctionFunctionRole.Arn
+      Code:
+        S3Bucket: !FindInMap ["SourceCode", "General", "S3Bucket"]
+        S3Key: !Join ["/", [!FindInMap ["SourceCode", "General", "KeyPrefix"],  "%%ZIP_FILE_NAME%%"]]
+      Runtime: python3.8
+      Layers:
+        - !Ref DefaultLayer
+      Timeout: 30
+      VpcConfig:
+        SecurityGroupIds: !Ref SecurityGroupIds
+        SubnetIds: !Ref SubnetIds
+  ReactorProxyFunctionFunctionVersion:
+    Type: AWS::Lambda::Version
+    Properties:
+      Description: !Sub "Latest version of ${ReactorProxyFunctionFunction}"
+      FunctionName: !GetAtt ReactorProxyFunctionFunction.Arn
+  Subscription:
+    Type: AWS::SNS::Subscription
+    Properties:
+      Endpoint: !GetAtt ReactorProxyFunctionFunction.Arn
+      Protocol: lambda
+      TopicArn: !Ref TopicArn
+  DefaultLayer:
+    Type: AWS::Lambda::LayerVersion
+    Properties:
+      CompatibleRuntimes:
+        - python3.8
+      Content:
+        S3Bucket: !FindInMap ["SourceCode", "General", "S3Bucket"]
+        S3Key: !Join ["/", [!FindInMap ["SourceCode", "General", "KeyPrefix"],  "%%LAYER_FILE_NAME%%"]]
+      Description: Layer for lambda-salt-ec2-reactor-proxy
+      LayerName: lambda-salt-ec2-reactor-proxy-layer
+            
