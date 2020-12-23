@@ -24,5 +24,6 @@
 **/.DS_Store
 **/.vscode
 build/
-deployment/parameters/awsgalen*.json
+deployment/parameters/*.json
 .idea
+*.egg-info
