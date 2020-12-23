@@ -23,6 +23,11 @@
 # System Files
 **/.DS_Store
 **/.vscode
-
-deployment/parameters/awsgalen*.json
-
+build/
+deployment/parameters/*.json
+.idea
+*.egg-info
+__pycache__
+.eggs
+.pytest_cache
+.venv
