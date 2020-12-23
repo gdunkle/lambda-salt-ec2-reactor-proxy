@@ -27,3 +27,7 @@ build/
 deployment/parameters/*.json
 .idea
 *.egg-info
+__pycache__
+.eggs
+.pytest_cache
+.venv
