@@ -85,7 +85,7 @@ echo "[Build] lambda_sns_listener Function"
 echo "------------------------------------------------------------------------------"
 cd $source_dir
 
-zip -r $build_dist_dir/$ZIP_FILE_NAME ./lambda_sns_listener/*
+zip -r $build_dist_dir/$ZIP_FILE_NAME ./lambda_salt_ec2_reactor_proxy /*
 
 
 echo "------------------------------------------------------------------------------"
