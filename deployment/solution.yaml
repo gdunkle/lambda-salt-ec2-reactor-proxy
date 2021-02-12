@@ -53,7 +53,7 @@ Resources:
         Variables:
           LOG_LEVEL: 'DEBUG' # change to WARN, ERROR or DEBUG as needed
           SALT_MASTER_ENDPOINT: !Ref SaltMasterEndpoint
-      Handler: lambda_sns_listener.index.lambda_handler
+      Handler: lambda_salt_ec2_reactor_proxy.index.lambda_handler
       Role: !GetAtt ReactorProxyFunctionFunctionRole.Arn
       Code:
         S3Bucket: !FindInMap ["SourceCode", "General", "S3Bucket"]
